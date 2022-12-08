@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+
+import sys
+import os.path
+import pyperclip
+
+#color codes
+class tc:
+    FAIL = '\033[91m'
+    WARNING = '\033[93m'
+    GREEN = '\033[92m'
+    STD = '\033[0m'
+
+class fileToArrayConverter:
+    def __init__(self, filename:str):
+        self._filename = filename
+        fn = filename.split('.')
+        self._output = fn[0] + '_asArray.js'
+        self._origContent = []
+
+    def run(self):
+        self.getLines()
+        self.outputToClipboard()
+
+    def getLines(self):
+        try:
+            with open (self._filename, 'r') as src:
+                orig = src.read().splitlines()
+                for line in orig:
+                    self._origContent.append(line)
+        except:
+            print(tc.FAIL + "ERROR: Unable to get text from " + self._filename)
+            print(tc.WARNING + "Ensure you used the correct file name or path if not in current directory" + tc.STD)
+            sys.exit()
+
+    def outputToClipboard(self):
+        an = self._output.split('.')
+        arrayName = an[0]
+
+        c = ''
+        c += arrayName + '\" = [\n'
+        for line in self._origContent:
+            c += ('    \"' + line + '\",\n')
+        c += ']\n'
+
+        try:
+            pyperclip.copy(c)
+            print(tc.GREEN + arrayName + ' copied to clipboard.' + tc.STD)
+        except Exception as e:
+            print(e)
+
+    def writeOutputFile(self):
+        an = self._output.split('.')
+        arrayName = an[0]
+        
+        with open(self._output, 'w') as out:
+            out.write(arrayName + " = [")
+            for line in self._origContent:
+                out.write('   \'' + line + '\',\n')
+            out.write(']\n\n')
+            out.write("//Some languages will require you to remove the comma[,] after the last item in the array!")
+
+    def confirmOutputFile(self):
+        if os.path.exists(self._output):
+            print(tc.GREEN + "fileToArray succesfully created" + "\'" + self._output + "\'" + tc.STD)
+        else:
+            print(tc.FAIL + "fileToArray unable to confirm " + self._output + " was sucessfully created." + tc.STD)
+#=============================================================================================#
+
+def help():
+    print(tc.GREEN + "\nfileToStrArray options:")
+    print("-f           output the new array to a javascript file")
+    print('')
+
+if __name__ == "__main__":
+    arg = ""
+
+    try:
+        arg = sys.argv[1]
+    except:
+        print(tc.FAIL + "ERROR: Must call fileToStrArray with a filename argument")
+        print(tc.WARNING + "ie:     < py fileToStrArray file.txt >" + tc.STD)
+        sys.exit()
+    
+    if len(sys.argv) == 2:
+        converter = fileToArrayConverter(arg)
+        converter.run()
+
+    if len(sys.argv) == 3:
+        if sys.argv[2] == '-f':
+            converter = fileToArrayConverter(arg)
+            converter.run()
+            converter.writeOutputFile()
+            converter.confirmOutputFile()
+        else:
+            print(tc.FAIL + "Invalid option included in fileToStrArray call")
+            help()
