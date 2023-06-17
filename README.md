@@ -1,5 +1,7 @@
 # fileToStrArray
 
+I was constantly needing to do this so I thought I'd practice some of Python text-editing and made this tool. Not sure if anyone else is going to have need for this but I hope someone else can find it useful!
+
 To use this tool you can use chmod to make it executable, otherwise you'll need to use py/python3 commands to run
 > example:  py fileToStrArray file.txt
 
